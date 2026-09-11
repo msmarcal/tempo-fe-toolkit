@@ -1,0 +1,11 @@
+{
+  "credential_pool": {
+    "tempo": {
+      "api_token": "YOUR_TEMPO_API_TOKEN"
+    },
+    "jira": {
+      "email": "your.email@company.com",
+      "api_token": "YOUR_JIRA_API_TOKEN"
+    }
+  }
+}
