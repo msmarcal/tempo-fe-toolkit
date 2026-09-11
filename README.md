@@ -25,6 +25,24 @@ curl -u "your.email@company.com:JIRA_API_TOKEN" \
 
 Cache the resulting `id` value in `ISSUE_ID_MAP` inside `tempo_worklog.py`. **Never** infer an issueId from someone else's worklog data — resolve your own via the API.
 
+## Pitfalls & lessons learned (hard-won)
+
+These are real bugs/gotchas discovered while running this toolkit in production, documented so you don't repeat them:
+
+1. **`GET /worklogs?from=&to=` is org-wide, not per-user.** The generic endpoint lists worklogs for ALL users in your Tempo instance that day, paginated at `limit` (default 100). A personal worklog created later than others that day can silently fall off the first page and look "missing" even though it's visible in the Tempo UI (observed in production: a 4h entry invisible via `/worklogs` but present via `/worklogs/user/{accountId}`). Both scripts use the per-user endpoint `/worklogs/user/{AUTHOR_ACCOUNT_ID}` — keep it that way when auditing your own hours.
+
+2. **The `create` payload requires `issueId` (numeric), not the issue key** (`PROJ-123`). Field names that do NOT work: `originTaskId`, `issueKey`. Resolve via Jira API and cache in `ISSUE_ID_MAP`.
+
+3. **`startTime` must be `HH:MM:SS` format** (e.g. `09:00:00`, not `09:00`). A bare `HH:MM` gets a 400 "Non valid time" error.
+
+4. **Tempo and Jira tokens are NOT interchangeable.** A Tempo token gets 401/404 against `https://<your-instance>.atlassian.net/rest/api/3`. Keep them separate in `auth.json`.
+
+5. **`PUT /worklogs/{id}` (update) requires the FULL payload** — issueId, startDate, startTime, timeSpentSeconds, authorAccountId, description. A partial patch fails with 400. Preserve `billableSeconds` explicitly or it may reset.
+
+6. **UI/API race condition.** If you (or a teammate with API access) interacts with the Tempo web UI around the same time as an API write, entries can merge or duplicate (observed: a 4h API-created worklog silently became 5h, plus two unrelated worklogs appeared, within ~2 minutes of a UI "Log Activities" click). Always re-fetch via `GET /worklogs/user/{accountId}?from=&to=` and confirm the actual resulting state before trusting the create response.
+
+7. **Never infer project involvement from a Calendar event title or someone else's worklog.** Confirm with the user which work item each recurring Calendar event maps to (see `cron_prompt.md` for a classification-rules template).
+
 ## Setup
 
 1. Copy `auth.example.json` to a local `auth.json` (**do not commit this file**) and fill in:

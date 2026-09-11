@@ -16,6 +16,21 @@ IMPORTANT — scope rules (do not violate):
 
 Using the script's data, build a PROPOSAL table (do not create anything via the API) covering days with a gap, suggesting Work Item + hours + description per Calendar event, aiming for 8h/day. If a gap remains with no matching Calendar event, say explicitly "no suggestion — needs manual entry" instead of inventing one.
 
+## Calendar event classification rules
+
+Map recurring Calendar event types to the SAME work item consistently, so the suggestion is stable week over week. Define your own mapping table (example below — replace keys/values with your own work items) and update it as you learn your team's event naming conventions:
+
+| Event pattern | Suggested work item | Notes |
+|---|---|---|
+| `360` (performance review) | YOUR_ADMINISTRATIVE_ITEM | personal/RH review — reportable under Administrative per your preference |
+| `Interview` / hiring events | YOUR_HIRING_ITEM | interview loop, candidate screens |
+| `1:1` with manager | YOUR_MEETINGS_ITEM | regular sync |
+| `Standup` / `Weekly` team call | YOUR_MEETINGS_ITEM | consolidate into one Meetings worklog per day (don't split each call) |
+| project-internal meeting whose title names a specific issueKey | YOUR_MEETINGS_ITEM by default | the meeting itself usually belongs on the consolidated Meetings card, NOT on the named project issueKey — unless the user explicitly says the *work* (not just the meeting) belongs there |
+| `Out of office` / `Holiday` / all-day events | usually non-reportable | exclude from gap-filling suggestions unless the user logs them as leave |
+
+Apply the same mapping when proposing from this report. When in doubt, ASK the user which work item an unfamiliar recurring event maps to — never guess a new mapping silently.
+
 Format the final response as a message to YOUR_NAME, making clear it's a SUGGESTION for review — they decide what to log/edit before submitting to their manager. Do not create any worklog — this is a read-only, proposal-only task.
 
 ---

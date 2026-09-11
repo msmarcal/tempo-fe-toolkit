@@ -93,8 +93,16 @@ def create_worklog(token, issue_key, issue_id, date, seconds, description, start
     return request(token, "POST", "/worklogs", payload=payload)
 
 
-def list_worklogs(token, from_date, to_date, limit=100):
-    return request(token, "GET", "/worklogs", params={"from": from_date, "to": to_date, "limit": limit})
+def list_worklogs(token, from_date, to_date, limit=1000, account_id=None):
+    # IMPORTANT: do NOT use the generic GET /worklogs?from=&to= endpoint to check
+    # your own hours - it returns worklogs for ALL users in the Tempo instance
+    # that day, paginated at `limit` (default 100). A personal worklog created
+    # later than others that day can silently fall off the first page and look
+    # "missing" even though it exists and is visible in the Tempo UI.
+    # GET /worklogs/user/{accountId} is server-side filtered to just you and is
+    # the authoritative source - always prefer it when auditing your own hours.
+    account_id = account_id or AUTHOR_ACCOUNT_ID
+    return request(token, "GET", f"/worklogs/user/{account_id}", params={"from": from_date, "to": to_date, "limit": limit})
 
 
 def get_worklog(token, worklog_id):
