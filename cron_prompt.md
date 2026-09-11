@@ -31,6 +31,15 @@ Map recurring Calendar event types to the SAME work item consistently, so the su
 
 Apply the same mapping when proposing from this report. When in doubt, ASK the user which work item an unfamiliar recurring event maps to — never guess a new mapping silently.
 
+## Description format rules
+
+When the proposal includes a multi-activity worklog (e.g. one Meetings entry aggregating several calls), list ONLY the activity names in the description — never each activity's individual duration. The total hours already appear as the worklog's duration field; repeating per-activity times in the text is noise.
+
+- Good: `Meetings: FE WW x Data Platform + ISH Internal meeting + Techops UA Handover Review`
+- Bad:  `Meetings: FE WW x Data Platform (1.5h) + ISH Internal meeting (0.5h) + Techops UA Handover Review (1h)`
+
+Apply this to any worklog whose description lists multiple activities, not just Meetings.
+
 Format the final response as a message to YOUR_NAME, making clear it's a SUGGESTION for review — they decide what to log/edit before submitting to their manager. Do not create any worklog — this is a read-only, proposal-only task.
 
 ---
